@@ -25,10 +25,17 @@ public class JsonStorage {
     }
 
     public List<Task> loadTasks() {
+        File file = new File(FILE_NAME);
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+        
         try (FileReader reader = new FileReader(FILE_NAME)) {
             Type taskListType = new TypeToken<ArrayList<Task>>(){}.getType();
-            return gson.fromJson(reader, taskListType);
+            List<Task> tasks = gson.fromJson(reader, taskListType);
+            return tasks != null ? tasks : new ArrayList<>();
         } catch (IOException e) {
+            System.out.println("Error loading tasks");
             return new ArrayList<>();
         }
     }
