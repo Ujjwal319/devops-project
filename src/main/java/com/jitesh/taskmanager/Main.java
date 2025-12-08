@@ -60,7 +60,7 @@ public class Main {
                     break;
                 case "5":
                     running = false;
-                    System.out.println("Bye!");
+                    System.out.println("Goodbye! Thanks for using Task Manager");
                     break;
                 default:
                     System.out.println("Invalid option");
