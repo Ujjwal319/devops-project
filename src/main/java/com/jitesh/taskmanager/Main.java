@@ -17,7 +17,8 @@ public class Main {
             System.out.println("1. Add Task");
             System.out.println("2. List Tasks");
             System.out.println("3. Mark Complete");
-            System.out.println("4. Exit");
+            System.out.println("4. Delete Task");
+            System.out.println("5. Exit");
             System.out.print("Choose option: ");
 
             String choice = scanner.nextLine();
@@ -46,6 +47,18 @@ public class Main {
                     }
                     break;
                 case "4":
+                    manager.listTasks();
+                    System.out.print("Enter task number to delete: ");
+                    try {
+                        int delIndex = Integer.parseInt(scanner.nextLine()) - 1;
+                        manager.deleteTask(delIndex);
+                        storage.saveTasks(manager.getTasks());
+                        System.out.println("Task deleted!");
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid number");
+                    }
+                    break;
+                case "5":
                     running = false;
                     System.out.println("Bye!");
                     break;
