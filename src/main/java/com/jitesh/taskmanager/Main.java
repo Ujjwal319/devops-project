@@ -34,12 +34,13 @@ public class Main {
                     manager.listTasks();
                     break;
                 case "3":
-                    System.out.print("Enter task number: ");
+                    manager.listTasks();  // TODO: show list before asking
+                    System.out.print("Enter task number to complete: ");
                     try {
                         int index = Integer.parseInt(scanner.nextLine()) - 1;
                         manager.markComplete(index);
                         storage.saveTasks(manager.getTasks());
-                        System.out.println("Done!");
+                        System.out.println("Task marked complete!");
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid number");
                     }
