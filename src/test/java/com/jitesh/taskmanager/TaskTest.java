@@ -18,4 +18,13 @@ public class TaskTest {
         task.setCompleted(true);
         assertTrue(task.isCompleted());
     }
+
+    @Test
+    public void testToString() {
+        Task task = new Task("Test task");
+        assertEquals("[ ] Test task", task.toString());
+        
+        task.setCompleted(true);
+        assertEquals("[X] Test task", task.toString());
+    }
 }
