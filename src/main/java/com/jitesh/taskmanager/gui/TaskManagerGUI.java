@@ -2,6 +2,7 @@ package com.jitesh.taskmanager.gui;
 
 import com.jitesh.taskmanager.Task;
 import com.jitesh.taskmanager.JsonStorage;
+import com.formdev.flatlaf.FlatDarkLaf;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,117 +12,89 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TaskManagerGUI extends JFrame {
-    private DefaultListModel<String> listModel;
-    private JList<String> taskList;
+    private JPanel taskListPanel;
     private JTextField taskInput;
-    private JButton addButton, completeButton, deleteButton;
     private List<Task> tasks;
     private JsonStorage storage;
+
+    private static final Color BG_DARK = new Color(30, 32, 34);
+    private static final Color BG_CARD = new Color(42, 44, 46);
+    private static final Color ACCENT_GREEN = new Color(46, 204, 113);
+    private static final Color ACCENT_RED = new Color(231, 76, 60);
+    private static final Color TEXT_PRIMARY = new Color(236, 240, 241);
+    private static final Color TEXT_MUTED = new Color(149, 165, 166);
 
     public TaskManagerGUI() {
         storage = new JsonStorage();
         tasks = storage.loadTasks();
         if (tasks == null) tasks = new ArrayList<>();
-
         initializeUI();
-        refreshTaskList();
     }
 
     private void initializeUI() {
         setTitle("Task Manager");
-        setSize(500, 400);
+        setSize(500, 550);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
+        getContentPane().setBackground(BG_DARK);
 
-        // Main panel
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
-        mainPanel.setBackground(new Color(45, 45, 45));
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
+        mainPanel.setBorder(new EmptyBorder(25, 25, 25, 25));
+        mainPanel.setBackground(BG_DARK);
 
         // Header
-        JLabel header = new JLabel("📋 Task Manager", SwingConstants.CENTER);
-        header.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        header.setForeground(new Color(100, 200, 255));
+        JLabel header = new JLabel("Task Manager");
+        header.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        header.setForeground(TEXT_PRIMARY);
         mainPanel.add(header, BorderLayout.NORTH);
 
-        // Task list
-        listModel = new DefaultListModel<>();
-        taskList = new JList<>(listModel);
-        taskList.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        taskList.setBackground(new Color(60, 60, 60));
-        taskList.setForeground(Color.WHITE);
-        taskList.setSelectionBackground(new Color(100, 150, 200));
-        taskList.setFixedCellHeight(30);
+        // Task list with scroll
+        taskListPanel = new JPanel();
+        taskListPanel.setLayout(new BoxLayout(taskListPanel, BoxLayout.Y_AXIS));
+        taskListPanel.setBackground(BG_DARK);
 
-        JScrollPane scrollPane = new JScrollPane(taskList);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(80, 80, 80)));
+        JScrollPane scrollPane = new JScrollPane(taskListPanel);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(BG_DARK);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 
-        // Bottom panel - input and buttons
-        JPanel bottomPanel = new JPanel(new BorderLayout(10, 10));
-        bottomPanel.setBackground(new Color(45, 45, 45));
-
-        // Input panel
-        JPanel inputPanel = new JPanel(new BorderLayout(5, 0));
-        inputPanel.setBackground(new Color(45, 45, 45));
+        // Input panel at bottom
+        JPanel inputPanel = new JPanel(new BorderLayout(10, 0));
+        inputPanel.setBackground(BG_DARK);
 
         taskInput = new JTextField();
         taskInput.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        taskInput.setBackground(new Color(60, 60, 60));
-        taskInput.setForeground(Color.WHITE);
-        taskInput.setCaretColor(Color.WHITE);
+        taskInput.setBackground(BG_CARD);
+        taskInput.setForeground(TEXT_PRIMARY);
+        taskInput.setCaretColor(TEXT_PRIMARY);
         taskInput.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(80, 80, 80)),
-            BorderFactory.createEmptyBorder(8, 10, 8, 10)
+            BorderFactory.createLineBorder(new Color(60, 62, 64)),
+            new EmptyBorder(12, 15, 12, 15)
         ));
+        taskInput.addActionListener(e -> addTask());
 
-        addButton = createStyledButton("Add Task", new Color(76, 175, 80));
+        JButton addBtn = createButton("+ Add Task", ACCENT_GREEN);
+        addBtn.addActionListener(e -> addTask());
+
         inputPanel.add(taskInput, BorderLayout.CENTER);
-        inputPanel.add(addButton, BorderLayout.EAST);
-
-        // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
-        buttonPanel.setBackground(new Color(45, 45, 45));
-
-        completeButton = createStyledButton("✓ Mark Complete", new Color(33, 150, 243));
-        deleteButton = createStyledButton("✗ Delete", new Color(244, 67, 54));
-
-        buttonPanel.add(completeButton);
-        buttonPanel.add(deleteButton);
-
-        bottomPanel.add(inputPanel, BorderLayout.NORTH);
-        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        inputPanel.add(addBtn, BorderLayout.EAST);
+        mainPanel.add(inputPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
-
-        // Event listeners
-        addButton.addActionListener(e -> addTask());
-        taskInput.addActionListener(e -> addTask());
-        completeButton.addActionListener(e -> markComplete());
-        deleteButton.addActionListener(e -> deleteTask());
+        refreshTaskList();
     }
 
-    private JButton createStyledButton(String text, Color bgColor) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        button.setBackground(bgColor);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        button.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(bgColor.darker());
-            }
-            public void mouseExited(MouseEvent e) {
-                button.setBackground(bgColor);
-            }
-        });
-
-        return button;
+    private JButton createButton(String text, Color bg) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setBackground(bg);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setBorder(new EmptyBorder(12, 20, 12, 20));
+        return btn;
     }
 
     private void addTask() {
@@ -129,48 +102,85 @@ public class TaskManagerGUI extends JFrame {
         if (!title.isEmpty()) {
             tasks.add(new Task(title));
             storage.saveTasks(tasks);
-            refreshTaskList();
             taskInput.setText("");
-        }
-    }
-
-    private void markComplete() {
-        int index = taskList.getSelectedIndex();
-        if (index >= 0) {
-            tasks.get(index).setCompleted(true);
-            storage.saveTasks(tasks);
             refreshTaskList();
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select a task first!", "No Selection", JOptionPane.WARNING_MESSAGE);
-        }
-    }
-
-    private void deleteTask() {
-        int index = taskList.getSelectedIndex();
-        if (index >= 0) {
-            int confirm = JOptionPane.showConfirmDialog(this, "Delete this task?", "Confirm", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) {
-                tasks.remove(index);
-                storage.saveTasks(tasks);
-                refreshTaskList();
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Please select a task first!", "No Selection", JOptionPane.WARNING_MESSAGE);
         }
     }
 
     private void refreshTaskList() {
-        listModel.clear();
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.get(i);
-            String status = task.isCompleted() ? "✓" : "○";
-            listModel.addElement((i + 1) + ". " + status + " " + task.getTitle());
+        taskListPanel.removeAll();
+        
+        if (tasks.isEmpty()) {
+            JLabel empty = new JLabel("No tasks yet. Add one above!");
+            empty.setForeground(TEXT_MUTED);
+            empty.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+            empty.setAlignmentX(Component.CENTER_ALIGNMENT);
+            empty.setBorder(new EmptyBorder(50, 0, 0, 0));
+            taskListPanel.add(empty);
+        } else {
+            for (int i = 0; i < tasks.size(); i++) {
+                taskListPanel.add(createTaskCard(tasks.get(i), i));
+                taskListPanel.add(Box.createVerticalStrut(8));
+            }
         }
+        
+        taskListPanel.revalidate();
+        taskListPanel.repaint();
+    }
+
+    private JPanel createTaskCard(Task task, int index) {
+        JPanel card = new JPanel(new BorderLayout(15, 0));
+        card.setBackground(BG_CARD);
+        card.setBorder(new EmptyBorder(15, 15, 15, 15));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+        // Checkbox
+        JCheckBox checkBox = new JCheckBox();
+        checkBox.setSelected(task.isCompleted());
+        checkBox.setBackground(BG_CARD);
+        checkBox.setFocusPainted(false);
+        checkBox.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        checkBox.addActionListener(e -> {
+            task.setCompleted(checkBox.isSelected());
+            storage.saveTasks(tasks);
+            refreshTaskList();
+        });
+
+        // Title
+        JLabel titleLabel = new JLabel(task.getTitle());
+        titleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        if (task.isCompleted()) {
+            titleLabel.setText("<html><strike>" + task.getTitle() + "</strike></html>");
+            titleLabel.setForeground(TEXT_MUTED);
+        } else {
+            titleLabel.setForeground(TEXT_PRIMARY);
+        }
+
+        // Delete button
+        JButton deleteBtn = new JButton("X");
+        deleteBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        deleteBtn.setBackground(ACCENT_RED);
+        deleteBtn.setForeground(Color.WHITE);
+        deleteBtn.setFocusPainted(false);
+        deleteBtn.setBorderPainted(false);
+        deleteBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        deleteBtn.setPreferredSize(new Dimension(35, 35));
+        deleteBtn.addActionListener(e -> {
+            tasks.remove(index);
+            storage.saveTasks(tasks);
+            refreshTaskList();
+        });
+
+        card.add(checkBox, BorderLayout.WEST);
+        card.add(titleLabel, BorderLayout.CENTER);
+        card.add(deleteBtn, BorderLayout.EAST);
+
+        return card;
     }
 
     public static void main(String[] args) {
         try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            FlatDarkLaf.setup();
         } catch (Exception e) {
             e.printStackTrace();
         }
