@@ -1,19 +1,20 @@
-# Task Manager CLI - Project Documentation
+# Task Manager - Project Documentation
 
 ## Table of Contents
 1. [Project Overview](#project-overview)
 2. [Technology Stack](#technology-stack)
 3. [Project Structure](#project-structure)
 4. [Implementation Details](#implementation-details)
-5. [Git Workflow](#git-workflow)
-6. [How to Run](#how-to-run)
-7. [Screenshots](#screenshots)
+5. [GUI Implementation](#gui-implementation)
+6. [Git Workflow](#git-workflow)
+7. [How to Run](#how-to-run)
+8. [Screenshots](#screenshots)
 
 ---
 
 ## Project Overview
 
-**Task Manager CLI** is a command-line based task management application built using Java. It allows users to manage their daily tasks through a simple interactive menu system. Tasks are persisted in a JSON file, ensuring data is saved between sessions.
+**Task Manager** is a task management application built using Java, available in both CLI and GUI versions. It allows users to manage their daily tasks through an interactive interface. Tasks are persisted in a JSON file, ensuring data is saved between sessions.
 
 ### Key Features
 - ✅ Add new tasks
@@ -21,7 +22,10 @@
 - ✅ Mark tasks as completed
 - ✅ Delete tasks
 - ✅ Persistent storage using JSON
-- ✅ Interactive CLI menu
+- ✅ Color-coded CLI output with ANSI colors
+- ✅ Modern dark-themed GUI using FlatLaf
+- ✅ Checkbox-based task completion in GUI
+- ✅ Shared data between CLI and GUI versions
 
 ---
 
@@ -32,6 +36,7 @@
 | **Java** | JDK 11+ | Core programming language |
 | **Maven** | 3.9.x | Build automation & dependency management |
 | **Gson** | 2.10.1 | JSON serialization/deserialization |
+| **FlatLaf** | 3.2.5 | Modern Look and Feel for Swing GUI |
 | **JUnit 5** | 5.9.2 | Unit testing framework |
 | **Git** | Latest | Version control |
 | **GitHub** | - | Remote repository hosting |
@@ -43,6 +48,8 @@
 **Maven**: Simplifies build process, manages dependencies automatically, and creates executable JAR files.
 
 **Gson**: Google's library for converting Java objects to JSON and vice versa. Easy to use and lightweight.
+
+**FlatLaf**: Modern flat Look and Feel for Java Swing applications. Provides dark theme and modern UI components.
 
 **JUnit 5**: Industry-standard testing framework for Java applications.
 
@@ -65,10 +72,13 @@ taskmanager/
 │   │       └── com/
 │   │           └── jitesh/
 │   │               └── taskmanager/
-│   │                   ├── Main.java           # Entry point with CLI menu
+│   │                   ├── Main.java           # CLI entry point
 │   │                   ├── Task.java           # Task model class
 │   │                   ├── TaskManager.java    # Business logic
-│   │                   └── JsonStorage.java    # JSON file operations
+│   │                   ├── JsonStorage.java    # JSON file operations
+│   │                   ├── ConsoleColors.java  # ANSI color codes for CLI
+│   │                   └── gui/
+│   │                       └── TaskManagerGUI.java  # GUI version
 │   └── test/
 │       └── java/
 │           └── com/
@@ -246,6 +256,67 @@ public class TaskTest {
 | `testTaskCreation` | Verifies task is created with correct title and incomplete status |
 | `testMarkComplete` | Verifies task can be marked as completed |
 | `testToString` | Verifies correct string representation |
+
+---
+
+## GUI Implementation
+
+### 6. TaskManagerGUI.java - Graphical Interface
+
+```java
+package com.jitesh.taskmanager.gui;
+
+public class TaskManagerGUI extends JFrame {
+    private JPanel taskListPanel;
+    private JTextField taskInput;
+    private List<Task> tasks;
+    private JsonStorage storage;
+    
+    // Uses FlatLaf for modern dark theme
+    // Card-based task display with checkboxes
+}
+```
+
+**Purpose**: Provides a modern graphical interface for task management.
+
+**Key Features**:
+| Feature | Description |
+|---------|-------------|
+| Dark Theme | Uses FlatLaf library for modern dark UI |
+| Card Layout | Each task displayed as a card |
+| Checkboxes | Click to toggle task completion |
+| Delete Button | Red X button for quick deletion |
+| Real-time Updates | UI updates immediately on changes |
+| Shared Storage | Uses same tasks.json as CLI version |
+
+**UI Components**:
+- Header with app title
+- Scrollable task list panel
+- Text input field for new tasks
+- Add Task button (green)
+- Per-task checkbox and delete button
+
+**How to Run GUI**:
+```bash
+java -cp target/taskmanager-1.0-SNAPSHOT.jar com.jitesh.taskmanager.gui.TaskManagerGUI
+```
+
+---
+
+### 7. ConsoleColors.java - CLI Color Support
+
+```java
+package com.jitesh.taskmanager;
+
+public class ConsoleColors {
+    public static final String RESET = "\033[0m";
+    public static final String GREEN = "\033[0;32m";
+    public static final String RED = "\033[0;31m";
+    // ... more colors
+}
+```
+
+**Purpose**: Provides ANSI color codes for colorful CLI output.
 
 ---
 
@@ -438,6 +509,13 @@ Goodbye! Thanks for using Task Manager
         <version>2.10.1</version>
     </dependency>
     
+    <!-- Modern UI Look and Feel -->
+    <dependency>
+        <groupId>com.formdev</groupId>
+        <artifactId>flatlaf</artifactId>
+        <version>3.2.5</version>
+    </dependency>
+    
     <!-- Testing -->
     <dependency>
         <groupId>org.junit.jupiter</groupId>
@@ -480,6 +558,9 @@ This project demonstrates:
 - ✅ Unit testing with JUnit 5
 - ✅ Git version control with branching strategies
 - ✅ GitHub collaboration with Pull Requests
+- ✅ GUI development with Java Swing
+- ✅ Modern UI theming with FlatLaf
+- ✅ ANSI color codes for CLI enhancement
 
 ---
 
