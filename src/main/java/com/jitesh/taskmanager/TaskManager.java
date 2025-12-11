@@ -31,11 +31,15 @@ public class TaskManager {
 
     public void listTasks() {
         if (tasks.isEmpty()) {
-            System.out.println("No tasks found.");
+            System.out.println(ConsoleColors.YELLOW + "No tasks found." + ConsoleColors.RESET);
             return;
         }
+        System.out.println(ConsoleColors.BOLD + "\n--- Your Tasks ---" + ConsoleColors.RESET);
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + ". " + tasks.get(i));
+            Task task = tasks.get(i);
+            String color = task.isCompleted() ? ConsoleColors.GREEN : ConsoleColors.WHITE;
+            String status = task.isCompleted() ? "[✓]" : "[ ]";
+            System.out.println(color + (i + 1) + ". " + status + " " + task.getTitle() + ConsoleColors.RESET);
         }
     }
 
